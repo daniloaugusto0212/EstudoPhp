@@ -1,6 +1,6 @@
 <?php
 	class Pessoa{
-		//Objeto Pessoa
+		//Objeto pessoa
 
 		private $nome = 'Guilherme';
 		private $idade = '23';
@@ -10,13 +10,17 @@
 			$this->comer();
 			echo 'estou crescendo';
 		}
+
 		private function comer(){
 			echo 'estou comendo';
 		}
+
 	}
+
 	//Instanciar
 	$pessoa = new Pessoa;
 	$pessoa2 = new Pessoa;
 
 	$pessoa->crescer();
-  ?>
+
+?>
