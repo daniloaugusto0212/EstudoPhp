@@ -1,5 +1,5 @@
 <?php
-    function mostarNome($nome, $idade){
+    function mostrarNome($nome, $idade){
         echo '<h2>Nome e: </h2>'.$nome;
         echo '<hr/>';
         echo "Idade: $idade";
@@ -17,6 +17,6 @@
     $variavel = verdade();
 
     //calculardora();
-    //mostarNome('João', 35);
+    mostrarNome('João', 35);
 
 ?>

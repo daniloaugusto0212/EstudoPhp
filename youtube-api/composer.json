@@ -1,0 +1,6 @@
+{
+    "require": {
+        "cosenary/instagram": "^2.3",
+        "madcoda/php-youtube-api": "^1.2"
+    }
+}
