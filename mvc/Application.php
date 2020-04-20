@@ -1,6 +1,6 @@
 <?php
-    define('INCLUDE_PATH','http://localhost/Backups/CursoDankiCode/mvc/');
-    define('INCLUDE_PATH_FULL','http://localhost/Backups/CursoDankiCode/mvc/Views/pages/');
+    define('INCLUDE_PATH','http://localhost/DankiCode/mvc/');
+    define('INCLUDE_PATH_FULL','http://localhost/DankiCode/mvc/Views/pages/');
 
     class Application
     {
