@@ -12,8 +12,7 @@
 
     }
 
-    $teste = new Teste();
-    
+    $teste = new Teste();    
 
     try {
         $teste->exemplo(10);
