@@ -42,7 +42,7 @@
                     <div class="form-group">
                         <label for="valores">Valor: </label>
                         <select class="form-control" name="valores" id="">
-                            <option value="199.00">1x de R$199.00</option>
+                            
                         </select>
                     </div>
                 </div><!--col-md-6-->
@@ -116,6 +116,38 @@
             })
 
         })
+
+    //Detectando a bandeira do cartão.
+
+    $('input[name=numero_cartao]').on('keyup',function(){
+        if ($(this).val().length == 6) {
+            PagSeguroDirectPayment.getBrand({
+                cardBin:$(this).val(),
+                success:function(v){
+                    var cartao = v.brand.name;
+
+                    PagSeguroDirectPayment.getInstallments({
+                        amount:valor,
+                        maxInstallmentNoInterest:4, //Quantidade o parcelamento sem juros
+                        brand:cartao,
+                        success:function(data){
+                            var bandeirasSelect = $('select[name=bandeira]');
+                            bandeirasSelect.find('option').removeAttr('selected');
+                            bandeirasSelect.find('option[value='+cartao+']').attr('selected','selected');
+
+                            //Listar opções de parcelamento
+
+                            $.each(data.installments[cartao],function(index,value){
+                                var htmlAtual = $('select[name=valores]').html();
+                                var valorParcela = value.installmentAmount;
+                                var juros = value.interestFree == true ? ' sem juros' : ' com juros';$('select[name=valores]').html(htmlAtual+'<option value="'+(index+1)+':'+valorParcela+'">'+valorParcela+juros+'</option>');
+                            })
+                        }
+                    })
+                }
+            })
+        }
+    })
 
     //Formulário principal
         
