@@ -120,9 +120,9 @@
     //Detectando a bandeira do cartão.
 
     $('input[name=numero_cartao]').on('keyup',function(){
-        if ($(this).val().length == 6) {
+        if ($(this).val().length >= 6) {
             PagSeguroDirectPayment.getBrand({
-                cardBin:$(this).val(),
+                cardBin:$(this).val().substring(0,6),
                 success:function(v){
                     var cartao = v.brand.name;
 
@@ -136,11 +136,14 @@
                             bandeirasSelect.find('option[value='+cartao+']').attr('selected','selected');
 
                             //Listar opções de parcelamento
-
+                            var cont = 1;
+                            $('select[name=valores]').html('');
                             $.each(data.installments[cartao],function(index,value){
+                               
                                 var htmlAtual = $('select[name=valores]').html();
                                 var valorParcela = value.installmentAmount;
-                                var juros = value.interestFree == true ? ' sem juros' : ' com juros';$('select[name=valores]').html(htmlAtual+'<option value="'+(index+1)+':'+valorParcela+'">'+valorParcela+juros+'</option>');
+                                var juros = value.interestFree == true ? ' sem juros' : ' com juros';$('select[name=valores]').html(htmlAtual+'<option value="'+(index+1)+':'+valorParcela+'">'+cont+' x de R$'+valorParcela+juros+'</option>');
+                                cont++;
                             })
                         }
                     })
@@ -149,11 +152,79 @@
         }
     })
 
+    $('select[name=bandeira]').change(function() {
+        var bandeira = $(this).val();
+        PagSeguroDirectPayment.getInstallments({
+            amount:valor,
+            maxInstallmentNoInterest:4, //Quantidade o parcelamento sem juros
+            brand:bandeira,
+            success:function(data){
+                //Listar opções de parcelamento
+                var cont = 1;
+                $('select[name=valores]').html('');
+                $.each(data.installments[bandeira],function(index,value){
+                    
+                    var htmlAtual = $('select[name=valores]').html();
+                    var valorParcela = value.installmentAmount;
+                    var juros = value.interestFree == true ? ' sem juros' : ' com juros';$('select[name=valores]').html(htmlAtual+'<option value="'+(index+1)+':'+valorParcela+'">'+cont+' x de R$'+valorParcela+juros+'</option>');
+                    cont++;
+                })
+            }
+        })
+    })
+
     //Formulário principal
         
         $('form').submit(function(e){
-            e.preventDefault()
-            disableForm()            
+            e.preventDefault();
+            disableForm();
+
+            var numero_cartao = $('[name=numero_cartao]').val();
+            var cvv = $('[name=cvv]').val();
+            var bandeira = $('[name=bandeira]').val();
+            var parcela = $('[name=valores]').val();
+            var mes = $('[name=mes_validade]').val();
+            var ano = $('[name=ano_validade]').val();
+
+            var hash = PagSeguroDirectPayment.getSenderHash();
+
+            //Pegar a bandeira
+            
+            PagSeguroDirectPayment.createCardToken({
+                cardNumber: numero_cartao,
+                brand: bandeira,
+                cvv: cvv,
+                expirationMonth: mes,
+                expirationYear: ano,
+                success: function(data){
+                    var token = data.card.token;
+                    var splitParcelas = parcela.split(':');
+                    var valorParcela = splitParcelas[1];
+                    var numeroParcela = splitParcelas[0];
+
+                    $.ajax({
+                        'method':'post',
+                        'dataType':'json',
+                        'url':'cartao_credito.php',
+                        'data':{'fechar_pedido':true,'token':token,'cartao':bandeira,'parcelas':numeroParcela,'valorParcela':valorParcela,'hash':hash,'amount':valor},
+                        success:function(data){
+                            if (data.status == undefined) {
+                                //ocorreu algum erro no pagamento
+                                alert('Ocorreu algum erro no pagamento1!');
+                            }else{
+                                //Pagamento processado com sucesso!
+                                enableForm();
+                                alert('Pagamento efetuado com sucesso!');
+                            }
+                        }
+                    })
+                },
+                error: function(data){
+                    alert('Ocorreu algum erro no pagamento!');
+                    
+                }
+            })
+
         })
 
         function disableForm(){
