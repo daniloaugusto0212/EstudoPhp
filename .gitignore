@@ -3,3 +3,6 @@ stripe/composer.json
 stripe/composer.lock
 
 gateways_pagamento/pagseguro_transparente/hidden.php
+
+login-google/vendor
+
